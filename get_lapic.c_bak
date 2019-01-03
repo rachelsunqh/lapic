@@ -1,0 +1,59 @@
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#define APIC_BASE	(0xfee00000)
+#define APIC_LEN	(0x1000)
+void help(void)
+{
+    printf("%s [out_file_name],if no out_file_name arg,default name is apic.bin\n");
+}
+int main(int argc,char *argv[])
+{
+    int i = 0,ret = -1,fd_in = -1,fd_out = -1;
+    char filename[32] = "apic.bin";
+    void *mem = NULL;
+
+    if(2 > argc)
+	help();
+    else
+        strcpy(filename,argv[1],strlen(argv[1]));
+        
+	
+    fd_out = open(filename,O_RDWR);
+    if(0 > fd_out){
+         return fd_out;
+    }
+    
+    fd_in = open("/dev/mem",O_RD);
+    if(0 > fd_in){
+         return fd_in;
+    }
+
+    mem = mmap(NULL,APIC_LEN,,,fd_in,APIC_BASE);
+    if(!mem){
+        return -ENOMEM;
+     }
+
+      ret = write(fd_out,mem,APIC_LEN);
+      if(ret < 0)
+	  return ret;
+
+      printf("ret = %d\n",ret);
+
+      unmap(mem,APIC_LEN);
+      close(fd_out);
+      close(fd_in);
+      return 0;
+}
+
+
+
+
+
+
+
+
+
+
